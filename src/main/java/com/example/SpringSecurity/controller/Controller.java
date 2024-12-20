@@ -4,7 +4,6 @@ import com.example.SpringSecurity.DTO.UserDTO;
 import com.example.SpringSecurity.exceptions.CustomException;
 import com.example.SpringSecurity.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,15 +17,14 @@ public class Controller {
     @Autowired
     private UserService userService;
 
-    @GetMapping("")
-    public String greeting(HttpSession session) {
-        return "Hello: " + session.getId();
+    @PostMapping("/user")
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) throws CustomException {
+        return new ResponseEntity<>(this.userService.createNewUser(userDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("/user")
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) throws CustomException {
-        System.out.println(userDTO.toString());
-        return new ResponseEntity<>(this.userService.createNewUser(userDTO), HttpStatus.CREATED);
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody UserDTO userDTO) {
+        return new ResponseEntity<>(this.userService.login(userDTO), HttpStatus.OK);
     }
 
     @GetMapping("/all")
@@ -34,6 +32,8 @@ public class Controller {
         return new ResponseEntity<>(this.userService.getAllUsers(), HttpStatus.OK);
     }
 
+
+    // CSRF is disabled so this should return null
     @GetMapping("/csrf")
     public String getCsrf(HttpServletRequest request) {
         return "CSRF: " + request.getParameter("_CSRF");
