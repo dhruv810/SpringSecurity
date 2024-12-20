@@ -11,6 +11,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -20,6 +21,9 @@ public class SecurityConfig {
 
     @Autowired
     private MyUserDetailService myUserDetailService;
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -48,10 +52,16 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
-        provider.setUserDetailsService(myUserDetailService);
+        // this mean password is not encoded
+//        provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+        // to configure it for BCrypt change it to following
+        // make sure to encode all password in service layer when making entry in database
+        provider.setPasswordEncoder(this.bCryptPasswordEncoder);
+        provider.setUserDetailsService(this.myUserDetailService);
         return provider;
     }
+
+
 
 }
 
